@@ -1,0 +1,16 @@
+.coset-container {
+	display: inline-block;
+
+	margin: 10px;
+	padding: 5px;
+
+	border: 1px black solid;
+}
+
+.vec-hurt {
+	background-color: yellow;
+}
+
+.vec-dead {
+	background-color: red;
+}

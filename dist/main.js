@@ -7239,13 +7239,16 @@ var elm$core$List$map = F2(
 var author$project$Cosets$makeCoset = F2(
 	function (codewords, n) {
 		return A2(
-			elm$core$List$filter,
-			author$project$Cosets$isWeightTwo,
+			elm$core$List$cons,
+			A2(author$project$Cosets$makeTwoHot, 0, n),
 			A2(
-				elm$core$List$map,
-				author$project$Cosets$xorVectors(
-					A2(author$project$Cosets$makeTwoHot, 0, n)),
-				codewords));
+				elm$core$List$filter,
+				author$project$Cosets$isWeightTwo,
+				A2(
+					elm$core$List$map,
+					author$project$Cosets$xorVectors(
+						A2(author$project$Cosets$makeTwoHot, 0, n)),
+					codewords)));
 	});
 var elm$core$List$rangeHelp = F3(
 	function (lo, hi, list) {
@@ -8489,32 +8492,81 @@ var author$project$Main$pairs = F2(
 	function (xs, ys) {
 		return A3(elm$core$List$map2, elm$core$Tuple$pair, xs, ys);
 	});
+var author$project$Main$convertElem = function (a) {
+	if (a) {
+		return '1';
+	} else {
+		return '0';
+	}
+};
+var elm$core$List$isEmpty = function (xs) {
+	if (!xs.b) {
+		return true;
+	} else {
+		return false;
+	}
+};
+var author$project$Main$groupElems = F2(
+	function (n, xs) {
+		return elm$core$List$isEmpty(xs) ? _List_Nil : A2(
+			elm$core$List$cons,
+			A2(elm$core$List$take, n, xs),
+			A2(
+				author$project$Main$groupElems,
+				n,
+				A2(elm$core$List$drop, n, xs)));
+	});
+var elm$core$List$intersperse = F2(
+	function (sep, xs) {
+		if (!xs.b) {
+			return _List_Nil;
+		} else {
+			var hd = xs.a;
+			var tl = xs.b;
+			var step = F2(
+				function (x, rest) {
+					return A2(
+						elm$core$List$cons,
+						sep,
+						A2(elm$core$List$cons, x, rest));
+				});
+			var spersed = A3(elm$core$List$foldr, step, _List_Nil, tl);
+			return A2(elm$core$List$cons, hd, spersed);
+		}
+	});
+var author$project$Main$padStringVector = function (vec) {
+	return elm$core$List$concat(
+		A2(
+			elm$core$List$intersperse,
+			_List_fromArray(
+				[' ']),
+			A2(author$project$Main$groupElems, 4, vec)));
+};
+var author$project$Main$convertVector = function (vec) {
+	return author$project$Main$padStringVector(
+		A2(elm$core$List$map, author$project$Main$convertElem, vec));
+};
 var elm$html$Html$span = _VirtualDom_node('span');
 var author$project$Main$viewElem = function (a) {
-	return a ? A2(
+	return A2(
 		elm$html$Html$span,
 		_List_Nil,
 		_List_fromArray(
 			[
-				elm$html$Html$text('1')
-			])) : A2(
-		elm$html$Html$span,
-		_List_Nil,
-		_List_fromArray(
-			[
-				elm$html$Html$text('0')
+				elm$html$Html$text(a)
 			]));
 };
 var elm$html$Html$div = _VirtualDom_node('div');
 var author$project$Main$viewVector = function (_n0) {
 	var vec = _n0.a;
 	var state = _n0.b;
+	var sVec = author$project$Main$convertVector(vec);
 	switch (state.$) {
 		case 'Alive':
 			return A2(
 				elm$html$Html$div,
 				_List_Nil,
-				A2(elm$core$List$map, author$project$Main$viewElem, vec));
+				A2(elm$core$List$map, author$project$Main$viewElem, sVec));
 		case 'Hurt':
 			return A2(
 				elm$html$Html$div,
@@ -8522,7 +8574,7 @@ var author$project$Main$viewVector = function (_n0) {
 					[
 						elm$html$Html$Attributes$class('vec-hurt')
 					]),
-				A2(elm$core$List$map, author$project$Main$viewElem, vec));
+				A2(elm$core$List$map, author$project$Main$viewElem, sVec));
 		default:
 			return A2(
 				elm$html$Html$div,
@@ -8530,7 +8582,7 @@ var author$project$Main$viewVector = function (_n0) {
 					[
 						elm$html$Html$Attributes$class('vec-dead')
 					]),
-				A2(elm$core$List$map, author$project$Main$viewElem, vec));
+				A2(elm$core$List$map, author$project$Main$viewElem, sVec));
 	}
 };
 var author$project$Main$viewCoset = F3(
@@ -8540,7 +8592,7 @@ var author$project$Main$viewCoset = F3(
 			author$project$Main$getVecState(kills),
 			coset);
 		var cosetTitle = elm$html$Html$text(
-			'Coset ' + elm$core$String$fromInt(n));
+			'Coset ' + elm$core$String$fromInt(n + 1));
 		return A2(
 			elm$html$Html$div,
 			_List_fromArray(

@@ -75,7 +75,7 @@ viewCosets kills cosets =
 viewCoset : Set Int -> Int -> Coset -> Html Msg
 viewCoset kills n coset =
     let
-        cosetTitle = text ("Coset " ++ String.fromInt n)
+        cosetTitle = text ("Coset " ++ String.fromInt (n + 1))
 
         states = List.map (getVecState kills) coset
     in
@@ -84,24 +84,47 @@ viewCoset kills n coset =
 
 viewVector : (Vector, VecState) -> Html Msg
 viewVector (vec, state) =
-    case state of
-        Alive ->
-            div [] (List.map viewElem vec)
+    let
+        sVec = convertVector vec
+    in
+        case state of
+            Alive ->
+                div [] (List.map viewElem sVec)
 
-        Hurt ->
-            div [ class "vec-hurt" ] (List.map viewElem vec)
+            Hurt ->
+                div [ class "vec-hurt" ] (List.map viewElem sVec)
 
-        Dead ->
-            div [ class "vec-dead" ] (List.map viewElem vec)
+            Dead ->
+                div [ class "vec-dead" ] (List.map viewElem sVec)
 
-
-viewElem : Bool -> Html Msg
+viewElem : String -> Html Msg
 viewElem a =
-    if a
+    span [] [ text a ]
+
+convertVector : Vector -> List String
+convertVector vec =
+    List.map convertElem vec
+        |> padStringVector
+
+padStringVector : List String -> List String
+padStringVector vec =
+    groupElems 4 vec
+        |> List.intersperse [" "]
+        |> List.concat
+
+groupElems : Int -> List a -> List (List a)
+groupElems n xs =
+    if List.isEmpty xs
     then
-        span [] [ text "1" ]
+        []
     else
-        span [] [ text "0" ]
+        (List.take n xs) :: groupElems n (List.drop n xs)
+
+convertElem : Bool -> String
+convertElem a =
+    case a of
+        True -> "1"
+        False -> "0"
 
 createButtons : Set Int -> Int -> List (Html Msg)
 createButtons kills n =

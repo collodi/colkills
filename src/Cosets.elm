@@ -6,6 +6,7 @@ makeCoset : List Vector -> Int -> List Vector
 makeCoset codewords n =
     List.map (xorVectors (makeTwoHot 0 n)) codewords
         |> List.filter isWeightTwo
+        |> (::) (makeTwoHot 0 n)
 
 
 xorVectors : Vector -> Vector -> Vector
